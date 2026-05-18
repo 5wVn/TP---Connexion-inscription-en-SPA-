@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:/Users/swand/Desktop/TP - Connexion & inscription en SPA\" fetch origin)",
+      "Bash(git -C \"c:/Users/swand/Desktop/TP - Connexion & inscription en SPA\" log origin/main --oneline -10)",
+      "Bash(git -C \"c:/Users/swand/Desktop/TP - Connexion & inscription en SPA\" diff HEAD origin/main --stat)",
+      "Bash(git -C \"c:/Users/swand/Desktop/TP - Connexion & inscription en SPA\" show origin/main:connexion.js)"
+    ]
+  }
+}
