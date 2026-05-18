@@ -40,31 +40,80 @@ function home() {
     document.getElementById('app').appendChild(div);
 }
 
+// Fausse API d'inscription : simule un appel réseau et stocke dans localStorage
+function fakeApiInscription({ username, email, password }) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const utilisateurs = JSON.parse(localStorage.getItem('utilisateurs')) || [];
+            if (utilisateurs.some(u => u.email === email)) {
+                reject(new Error('Un compte existe déjà avec cet email.'));
+                return;
+            }
+            utilisateurs.push({ username, email, password });
+            localStorage.setItem('utilisateurs', JSON.stringify(utilisateurs));
+            resolve({ username, email });
+        }, 300);
+    });
+}
+
 function inscription() {
     viderApp();
     const form = document.createElement('form');
     form.innerHTML = `
         <h2>Inscription</h2>
-        <label for="username">Nom d'utilisateur:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <label for="username">Nom:</label>
+        <input type="text" id="username" name="username">
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
+        <input type="email" id="email" name="email">
         <label for="password">Mot de passe:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">S'inscrire</button>
-        <p id="message" style="color:red;"></p>
+        <input type="password" id="password" name="password">
+        <label for="passwordConfirm">Confirmation du mot de passe:</label>
+        <input type="password" id="passwordConfirm" name="passwordConfirm">
+        <button type="submit">Créer mon compte</button>
+        <p id="message"></p>
+        <p style="text-align:center; margin-top:12px;">
+            <a href="#" id="lien-deja-compte" style="color: var(--text-p);">Déjà un compte ?</a>
+        </p>
     `;
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const utilisateurs = JSON.parse(localStorage.getItem('utilisateurs')) || [];
-        utilisateurs.push({
-            username: form.username.value,
-            email: form.email.value,
-            password: form.password.value
-        });
-        localStorage.setItem('utilisateurs', JSON.stringify(utilisateurs));
-        alert('Inscription réussie !');
+        const message = form.querySelector('#message');
+        const username = form.username.value.trim();
+        const email = form.email.value.trim();
+        const password = form.password.value;
+        const passwordConfirm = form.passwordConfirm.value;
+
+        if (!username) {
+            message.textContent = "Le nom ne doit pas être vide.";
+            return;
+        }
+        if (!email) {
+            message.textContent = "L'email ne doit pas être vide.";
+            return;
+        }
+        if (!password) {
+            message.textContent = "Le mot de passe ne doit pas être vide.";
+            return;
+        }
+        if (password !== passwordConfirm) {
+            message.textContent = "La confirmation ne correspond pas au mot de passe.";
+            return;
+        }
+
+        fakeApiInscription({ username, email, password })
+            .then(() => {
+                message.style.color = 'lightgreen';
+                message.textContent = "Inscription réussie ! Redirection...";
+                setTimeout(connexion, 1000);
+            })
+            .catch((err) => {
+                message.textContent = err.message;
+            });
+    });
+
+    form.querySelector('#lien-deja-compte').addEventListener('click', (e) => {
+        e.preventDefault();
         connexion();
     });
 
